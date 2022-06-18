@@ -1,0 +1,1155 @@
+- Description: Detects whether Amazon EC2 instances are launched without an Amazon
+    EBS volume that is optimized for performance\. Amazon EBS\-optimized volumes minimize
+    contention between Amazon EBS I/O and other traffic from your instance\. This
+    guardrail does not change the status of the account\. This is a detective guardrail
+    with strongly recommended guidance\. By default, this guardrail is not enabled\.
+  FullDocumentation: "Detect Whether Amazon EBS Optimization is Enabled for Amazon\
+    \ EC2 Instances<a name=\"disallow-not-ebs-optimized\"></a>\n\nDetects whether\
+    \ Amazon EC2 instances are launched without an Amazon EBS volume that is optimized\
+    \ for performance\\. Amazon EBS\\-optimized volumes minimize contention between\
+    \ Amazon EBS I/O and other traffic from your instance\\. This guardrail does not\
+    \ change the status of the account\\. This is a detective guardrail with strongly\
+    \ recommended guidance\\. By default, this guardrail is not enabled\\.\n\nThe\
+    \ artifact for this guardrail is the following AWS Config rule\\.\n\n```\nAWSTemplateFormatVersion:\
+    \ 2010-09-09\nDescription: Configure AWS Config rules to check whether EBS optimization\
+    \ is enabled for your EC2 instances that can be EBS-optimized\nParameters:\n \
+    \ ConfigRuleName:\n    Type: 'String'\n    Description: 'Name for the Config rule'\n\
+    Resources:\n  CheckForEbsOptimizedInstance:\n    Type: AWS::Config::ConfigRule\n\
+    \    Properties:\n      ConfigRuleName: !Sub ${ConfigRuleName}\n      Description:\
+    \ Checks whether EBS optimization is enabled for your EC2 instances that can be\
+    \ EBS-optimized\n      Source:\n        Owner: AWS\n        SourceIdentifier:\
+    \ EBS_OPTIMIZED_INSTANCE\n      Scope:\n        ComplianceResourceTypes:\n   \
+    \       - AWS::EC2::Instance\n```\n\n"
+  Guidance: Recommended
+  Name: Detect Whether Amazon EBS Optimization is Enabled for Amazon EC2 Instances
+  Sid: EBS_OPTIMIZED_INSTANCE
+  Type: ConfigRule
+- Description: This guardrail detects whether an Amazon EBS volume device persists
+    independently from an Amazon EC2 instance\. This guardrail does not change the
+    status of the account\. This is a detective guardrail with strongly recommended
+    guidance\. By default, this guardrail is not enabled\.
+  FullDocumentation: "Detect Whether Amazon EBS Volumes are Attached to Amazon EC2\
+    \ Instances<a name=\"disallow-unattached-ebs\"></a>\n\nThis guardrail detects\
+    \ whether an Amazon EBS volume device persists independently from an Amazon EC2\
+    \ instance\\. This guardrail does not change the status of the account\\. This\
+    \ is a detective guardrail with strongly recommended guidance\\. By default, this\
+    \ guardrail is not enabled\\.\n\nThe artifact for this guardrail is the following\
+    \ AWS Config rule\\.\n\n```\nAWSTemplateFormatVersion: 2010-09-09\nDescription:\
+    \ Configure AWS Config rules to check whether EBS volumes are attached to EC2\
+    \ instances\nParameters:\n  ConfigRuleName:\n    Type: 'String'\n    Description:\
+    \ 'Name for the Config rule'\n  deleteOnTermination:\n    Type: 'String'\n   \
+    \ Default: 'None'\n    Description: 'Check for Delete on termination'\nConditions:\n\
+    \  deleteOnTermination:\n    Fn::Not:\n    - Fn::Equals:\n      - 'None'\n   \
+    \   - Ref: deleteOnTermination\nResources:\n  CheckForEc2VolumesInUse:\n    Type:\
+    \ AWS::Config::ConfigRule\n    Properties:\n      ConfigRuleName: !Sub ${ConfigRuleName}\n\
+    \      Description: Checks whether EBS volumes are attached to EC2 instances\n\
+    \      InputParameters:\n        deleteOnTermination:\n          Fn::If:\n   \
+    \         - deleteOnTermination\n            - Ref: deleteOnTermination\n    \
+    \        - Ref: AWS::NoValue\n      Source:\n        Owner: AWS\n        SourceIdentifier:\
+    \ EC2_VOLUME_INUSE_CHECK\n      Scope:\n        ComplianceResourceTypes:\n   \
+    \       - AWS::EC2::Volume\n```\n\n"
+  Guidance: Recommended
+  Name: Detect Whether Amazon EBS Volumes are Attached to Amazon EC2 Instances
+  Sid: EC2_VOLUME_INUSE_CHECK
+  Type: ConfigRule
+- Description: This guardrail detects whether the Amazon EBS volumes attached to an
+    Amazon EC2 instance are encrypted\. This guardrail does not change the status
+    of the account\. This is a detective guardrail with strongly recommended guidance\.
+    By default, this guardrail isn't enabled on any OUs\.
+  FullDocumentation: "Detect Whether Encryption is Enabled for Amazon EBS Volumes\
+    \ Attached to Amazon EC2 Instances<a name=\"ebs-enable-encryption\"></a>\n\nThis\
+    \ guardrail detects whether the Amazon EBS volumes attached to an Amazon EC2 instance\
+    \ are encrypted\\. This guardrail does not change the status of the account\\\
+    . This is a detective guardrail with strongly recommended guidance\\. By default,\
+    \ this guardrail isn't enabled on any OUs\\.\n\nThe artifact for this guardrail\
+    \ is the following AWS Config rule\\.\n\n```\nAWSTemplateFormatVersion: 2010-09-09\n\
+    Description: Configure AWS Config rules to check for encryption of all storage\
+    \ volumes attached to compute\nParameters:\n  ConfigRuleName:\n    Type: 'String'\n\
+    \    Description: 'Name for the Config rule'\nResources:\n  CheckForEncryptedVolumes:\n\
+    \    Type: AWS::Config::ConfigRule\n    Properties:\n      ConfigRuleName: !Sub\
+    \ ${ConfigRuleName}\n      Description: Checks whether EBS volumes that are in\
+    \ an attached state are encrypted.\n      Source:\n        Owner: AWS\n      \
+    \  SourceIdentifier: ENCRYPTED_VOLUMES\n      Scope:\n        ComplianceResourceTypes:\n\
+    \          - AWS::EC2::Volume\n```\n\n"
+  Guidance: Recommended
+  Name: Detect Whether Encryption is Enabled for Amazon EBS Volumes Attached to Amazon
+    EC2 Instances
+  Sid: ENCRYPTED_VOLUMES
+  Type: ConfigRule
+- Description: This guardrail prevents deletion of Amazon S3 buckets created by AWS
+    Control Tower in the log archive account\. This is a preventive guardrail with
+    mandatory guidance\. By default, this guardrail is enabled on the **Security**
+    OU\.
+  FullDocumentation: "Disallow Deletion of Log Archive<a name=\"disallow-audit-bucket-deletion\"\
+    ></a>\n\nThis guardrail prevents deletion of Amazon S3 buckets created by AWS\
+    \ Control Tower in the log archive account\\. This is a preventive guardrail with\
+    \ mandatory guidance\\. By default, this guardrail is enabled on the **Security**\
+    \ OU\\.\n\nThe artifact for this guardrail is the following SCP\\.\n\n```\n{\n\
+    \  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Sid\": \"\
+    GRAUDITBUCKETDELETIONPROHIBITED\",\n      \"Effect\": \"Deny\",\n      \"Action\"\
+    : [\n        \"s3:DeleteBucket\"\n        ],\n      \"Resource\": [\n        \"\
+    arn:aws:s3:::aws-controltower*\"\n        ],\n      \"Condition\": {\n       \
+    \ \"ArnNotLike\": {\n          \"aws:PrincipalARN\":\"arn:aws:iam::*:role/AWSControlTowerExecution\"\
+    \n          }\n      }\n    }\n  ]\n}\n```\n\n"
+  Guidance: Mandatory
+  Name: Disallow Deletion of Log Archive
+  Sid: GRAUDITBUCKETDELETIONPROHIBITED
+  Type: ServiceControlPolicy
+- Description: This guardrail disallows changes to encryption for all Amazon S3 buckets\.
+    This is a preventive guardrail with elective guidance\. By default, this guardrail
+    is not enabled\.
+  FullDocumentation: "Disallow Changes to Encryption Configuration for Amazon S3 Buckets\
+    \ \\[Previously: Enable Encryption at Rest for Log Archive\\]<a name=\"log-archive-encryption-enabled\"\
+    ></a>\n\nThis guardrail disallows changes to encryption for all Amazon S3 buckets\\\
+    . This is a preventive guardrail with elective guidance\\. By default, this guardrail\
+    \ is not enabled\\.\n\nThe artifact for this guardrail is the following service\
+    \ control policy \\(SCP\\)\\.\n\n```\n{\n    \"Version\": \"2012-10-17\",\n  \
+    \  \"Statement\": [\n        {\n            \"Sid\": \"GRAUDITBUCKETENCRYPTIONENABLED\"\
+    ,\n            \"Effect\": \"Deny\",\n            \"Action\": [\n            \
+    \    \"s3:PutEncryptionConfiguration\"\n            ],\n            \"Resource\"\
+    : [\"*\"],\n            \"Condition\": {\n                \"ArnNotLike\": {\n\
+    \                    \"aws:PrincipalARN\":\"arn:aws:iam::*:role/AWSControlTowerExecution\"\
+    \n                }\n            }\n        }\n    ]\n}\n```\n\n"
+  Guidance: Elective
+  Name: Disallow Changes to Encryption Configuration for Amazon S3 Buckets
+  PreviousName: Enable Encryption at Rest for Log Archive
+  Sid: GRAUDITBUCKETENCRYPTIONENABLED
+  Type: ServiceControlPolicy
+- Description: This guardrail disallows changes to logging configuration for all Amazon
+    S3 buckets\.  This is a preventive guardrail with elective guidance\. By default,
+    this guardrail is not enabled\.
+  FullDocumentation: "Disallow Changes to Logging Configuration for Amazon S3 Buckets\
+    \ \\[Previously: Enable Access Logging for Log Archive\\]<a name=\"log-archive-access-enabled\"\
+    ></a>\n\nThis guardrail disallows changes to logging configuration for all Amazon\
+    \ S3 buckets\\.  This is a preventive guardrail with elective guidance\\. By default,\
+    \ this guardrail is not enabled\\.\n\nThe artifact for this guardrail is the following\
+    \ SCP\\.\n\n```\n{\n    \"Version\": \"2012-10-17\",\n    \"Statement\": [\n \
+    \       {\n            \"Sid\": \"GRAUDITBUCKETLOGGINGENABLED\",\n           \
+    \ \"Effect\": \"Deny\",\n            \"Action\": [\n                \"s3:PutBucketLogging\"\
+    \n            ],\n            \"Resource\": [\"*\"],\n            \"Condition\"\
+    : {\n                \"ArnNotLike\": {\n                    \"aws:PrincipalARN\"\
+    :\"arn:aws:iam::*:role/AWSControlTowerExecution\"\n                }\n       \
+    \     }\n        }\n    ]\n}\n```\n\n"
+  Guidance: Elective
+  Name: Disallow Changes to Logging Configuration for Amazon S3 Buckets
+  PreviousName: Enable Access Logging for Log Archive
+  Sid: GRAUDITBUCKETLOGGINGENABLED
+  Type: ServiceControlPolicy
+- Description: This guardrail disallows changes to bucket policy for all Amazon S3
+    buckets\. This is a preventive guardrail with elective guidance\. By default,
+    this guardrail is not enabled\.
+  FullDocumentation: "Disallow Changes to Bucket Policy for Amazon S3 Buckets \\[Previously:\
+    \ Disallow Policy Changes to Log Archive\\]<a name=\"log-archive-policy-changes\"\
+    ></a>\n\nThis guardrail disallows changes to bucket policy for all Amazon S3 buckets\\\
+    . This is a preventive guardrail with elective guidance\\. By default, this guardrail\
+    \ is not enabled\\.\n\nThe artifact for this guardrail is the following SCP\\\
+    .\n\n```\n{\n    \"Version\": \"2012-10-17\",\n    \"Statement\": [\n        {\n\
+    \            \"Sid\": \"GRAUDITBUCKETPOLICYCHANGESPROHIBITED\",\n            \"\
+    Effect\": \"Deny\",\n            \"Action\": [\n                \"s3:PutBucketPolicy\"\
+    \n            ],\n            \"Resource\": [\"*\"],\n            \"Condition\"\
+    : {\n                \"ArnNotLike\": {\n                    \"aws:PrincipalARN\"\
+    :\"arn:aws:iam::*:role/AWSControlTowerExecution\"\n                }\n       \
+    \     }\n        }\n    ]\n}\n```\n\n"
+  Guidance: Elective
+  Name: Disallow Changes to Bucket Policy for Amazon S3 Buckets
+  PreviousName: Disallow Policy Changes to Log Archive
+  Sid: GRAUDITBUCKETPOLICYCHANGESPROHIBITED
+  Type: ServiceControlPolicy
+- Description: This guardrail disallows lifecycle configuration changes for all Amazon
+    S3 buckets\.  This is a preventive guardrail with elective guidance\. By default,
+    this guardrail is not enabled\.
+  FullDocumentation: "Disallow Changes to Lifecycle Configuration for Amazon S3 Buckets\
+    \ \\[Previously: Set a Retention Policy for Log Archive\\]<a name=\"log-archive-retention-policy\"\
+    ></a>\n\nThis guardrail disallows lifecycle configuration changes for all Amazon\
+    \ S3 buckets\\.  This is a preventive guardrail with elective guidance\\. By default,\
+    \ this guardrail is not enabled\\.\n\nThe artifact for this guardrail is the following\
+    \ SCP\\.\n\n```\n{\n    \"Version\": \"2012-10-17\",\n    \"Statement\": [\n \
+    \       {\n            \"Sid\": \"GRAUDITBUCKETRETENTIONPOLICY\",\n          \
+    \  \"Effect\": \"Deny\",\n            \"Action\": [\n                \"s3:PutLifecycleConfiguration\"\
+    \n            ],\n            \"Resource\": [\"*\"], \n            \"Condition\"\
+    : {\n                \"ArnNotLike\": {\n                    \"aws:PrincipalARN\"\
+    :\"arn:aws:iam::*:role/AWSControlTowerExecution\"\n                }\n       \
+    \     }\n        }\n    ]\n}\n```\n\n"
+  Guidance: Elective
+  Name: Disallow Changes to Lifecycle Configuration for Amazon S3 Buckets
+  PreviousName: Set a Retention Policy for Log Archive
+  Sid: GRAUDITBUCKETRETENTIONPOLICY
+  Type: ServiceControlPolicy
+- Description: This guardrail prevents configuration changes to CloudTrail in your
+    landing zone\. This is a preventive guardrail with mandatory guidance\. By default,
+    this guardrail is enabled on all OUs\.
+  FullDocumentation: "Disallow Configuration Changes to CloudTrail<a name=\"cloudtrail-configuration-changes\"\
+    ></a>\n\nThis guardrail prevents configuration changes to CloudTrail in your landing\
+    \ zone\\. This is a preventive guardrail with mandatory guidance\\. By default,\
+    \ this guardrail is enabled on all OUs\\.\n\nThe artifact for this guardrail is\
+    \ the following SCP\\.\n\n```\n{\n    \"Version\": \"2012-10-17\",\n    \"Statement\"\
+    : [\n        {\n            \"Sid\": \"GRCLOUDTRAILENABLED\",\n            \"\
+    Effect\": \"Deny\",\n            \"Action\": [\n                \"cloudtrail:DeleteTrail\"\
+    ,\n                \"cloudtrail:PutEventSelectors\",\n                \"cloudtrail:StopLogging\"\
+    ,\n                \"cloudtrail:UpdateTrail\"\n            ],\n            \"\
+    Resource\": [\"arn:aws:cloudtrail:*:*:trail/aws-controltower-*\"],\n         \
+    \   \"Condition\": {\n                \"ArnNotLike\": {\n                    \"\
+    aws:PrincipalARN\":\"arn:aws:iam::*:role/AWSControlTowerExecution\"\n        \
+    \        }\n            }\n        }\n    ]\n}\n```\n\n"
+  Guidance: Mandatory
+  Name: Disallow Configuration Changes to CloudTrail
+  Sid: GRCLOUDTRAILENABLED
+  Type: ServiceControlPolicy
+- Description: This guardrail performs real\-time analysis of activity data by sending
+    CloudTrail events to CloudWatch Logs log files\. This is a preventive guardrail
+    with mandatory guidance\. By default, this guardrail is enabled on all OUs\.
+  FullDocumentation: "Integrate CloudTrail Events with Amazon CloudWatch Logs<a name=\"\
+    cloudtrail-integrate-events-logs\"></a>\n\nThis guardrail performs real\\-time\
+    \ analysis of activity data by sending CloudTrail events to CloudWatch Logs log\
+    \ files\\. This is a preventive guardrail with mandatory guidance\\. By default,\
+    \ this guardrail is enabled on all OUs\\.\n\nThe artifact for this guardrail is\
+    \ the following SCP\\.\n\n```\n{\n    \"Version\": \"2012-10-17\",\n    \"Statement\"\
+    : [\n        {\n            \"Sid\": \"GRCLOUDTRAILENABLED\",\n            \"\
+    Effect\": \"Deny\",\n            \"Action\": [\n                \"cloudtrail:DeleteTrail\"\
+    ,\n                \"cloudtrail:PutEventSelectors\",\n                \"cloudtrail:StopLogging\"\
+    ,\n                \"cloudtrail:UpdateTrail\"\n            ],\n            \"\
+    Resource\": [\"arn:aws:cloudtrail:*:*:trail/aws-controltower-*\"],\n         \
+    \   \"Condition\": {\n                \"ArnNotLike\": {\n                    \"\
+    aws:PrincipalARN\":\"arn:aws:iam::*:role/AWSControlTowerExecution\"\n        \
+    \        }\n            }\n        }\n    ]\n}\n```\n\n"
+  Guidance: Mandatory
+  Name: Integrate CloudTrail Events with Amazon CloudWatch Logs
+  Sid: GRCLOUDTRAILENABLED
+  Type: ServiceControlPolicy
+- Description: This guardrail enables CloudTrail in all available AWS Regions\. This
+    is a preventive guardrail with mandatory guidance\. By default, this guardrail
+    is enabled in all OUs\.
+  FullDocumentation: "Enable CloudTrail in All Available Regions<a name=\"cloudtrail-enable-region\"\
+    ></a>\n\nThis guardrail enables CloudTrail in all available AWS Regions\\. This\
+    \ is a preventive guardrail with mandatory guidance\\. By default, this guardrail\
+    \ is enabled in all OUs\\.\n\nThe artifact for this guardrail is the following\
+    \ SCP\\.\n\n```\n{\n    \"Version\": \"2012-10-17\",\n    \"Statement\": [\n \
+    \       {\n            \"Sid\": \"GRCLOUDTRAILENABLED\",\n            \"Effect\"\
+    : \"Deny\",\n            \"Action\": [\n                \"cloudtrail:DeleteTrail\"\
+    ,\n                \"cloudtrail:PutEventSelectors\",\n                \"cloudtrail:StopLogging\"\
+    ,\n                \"cloudtrail:UpdateTrail\"\n            ],\n            \"\
+    Resource\": [\"arn:aws:cloudtrail:*:*:trail/aws-controltower-*\"],\n         \
+    \   \"Condition\": {\n                \"ArnNotLike\": {\n                    \"\
+    aws:PrincipalARN\":\"arn:aws:iam::*:role/AWSControlTowerExecution\"\n        \
+    \        }\n            }\n        }\n    ]\n}\n```\n\n"
+  Guidance: Mandatory
+  Name: Enable CloudTrail in All Available Regions
+  Sid: GRCLOUDTRAILENABLED
+  Type: ServiceControlPolicy
+- Description: This guardrail enables integrity validation for the CloudTrail log
+    file in all accounts and OUs\. It protects the integrity of account activity logs
+    using CloudTrail log file validation, which creates a digitally signed digest
+    file that contains a hash of each log that CloudTrail writes to Amazon S3\. This
+    is a preventive guardrail with mandatory guidance\. By default, this guardrail
+    is enabled in all OUs\.
+  FullDocumentation: "Enable Integrity Validation for CloudTrail Log File<a name=\"\
+    cloudtrail-enable-validation\"></a>\n\nThis guardrail enables integrity validation\
+    \ for the CloudTrail log file in all accounts and OUs\\. It protects the integrity\
+    \ of account activity logs using CloudTrail log file validation, which creates\
+    \ a digitally signed digest file that contains a hash of each log that CloudTrail\
+    \ writes to Amazon S3\\. This is a preventive guardrail with mandatory guidance\\\
+    . By default, this guardrail is enabled in all OUs\\.\n\nThe artifact for this\
+    \ guardrail is the following SCP\\.\n\n```\n{\n    \"Version\": \"2012-10-17\"\
+    ,\n    \"Statement\": [\n        {\n            \"Sid\": \"GRCLOUDTRAILENABLED\"\
+    ,\n            \"Effect\": \"Deny\",\n            \"Action\": [\n            \
+    \    \"cloudtrail:DeleteTrail\",\n                \"cloudtrail:PutEventSelectors\"\
+    ,\n                \"cloudtrail:StopLogging\",\n                \"cloudtrail:UpdateTrail\"\
+    \n            ],\n            \"Resource\": [\"arn:aws:cloudtrail:*:*:trail/aws-controltower-*\"\
+    ],\n            \"Condition\": {\n                \"ArnNotLike\": {\n        \
+    \            \"aws:PrincipalARN\":\"arn:aws:iam::*:role/AWSControlTowerExecution\"\
+    \n                }\n            }\n        }\n    ]\n}\n```\n\n"
+  Guidance: Mandatory
+  Name: Enable Integrity Validation for CloudTrail Log File
+  Sid: GRCLOUDTRAILENABLED
+  Type: ServiceControlPolicy
+- Description: This guardrail disallows changes to Amazon CloudWatch as it was configured
+    by AWS Control Tower when you set up your landing zone\. This is a preventive
+    guardrail with mandatory guidance\. By default, this guardrail is enabled in all
+    OUs\.
+  FullDocumentation: "Disallow Changes to Amazon CloudWatch Set Up by AWS Control\
+    \ Tower<a name=\"cloudwatch-disallow-changes\"></a>\n\nThis guardrail disallows\
+    \ changes to Amazon CloudWatch as it was configured by AWS Control Tower when\
+    \ you set up your landing zone\\. This is a preventive guardrail with mandatory\
+    \ guidance\\. By default, this guardrail is enabled in all OUs\\.\n\nThe artifact\
+    \ for this guardrail is the following SCP\\.\n\n```\n{\n  \"Version\": \"2012-10-17\"\
+    ,\n  \"Statement\": [\n    {\n      \"Sid\": \"GRCLOUDWATCHEVENTPOLICY\",\n  \
+    \    \"Effect\": \"Deny\",\n      \"Action\": [\n        \"events:PutRule\",\n\
+    \        \"events:PutTargets\",\n        \"events:RemoveTargets\",\n        \"\
+    events:DisableRule\",\n        \"events:DeleteRule\"\n      ],\n      \"Resource\"\
+    : [\n        \"arn:aws:events:*:*:rule/aws-controltower-*\"\n      ],\n      \"\
+    Condition\": {\n        \"ArnNotLike\": {\n          \"aws:PrincipalARN\": \"\
+    arn:aws:iam::*:role/AWSControlTowerExecution\"\n        }\n      }\n    }\n  ]\n\
+    }\n```\n\n"
+  Guidance: Mandatory
+  Name: Disallow Changes to Amazon CloudWatch Set Up by AWS Control Tower
+  Sid: GRCLOUDWATCHEVENTPOLICY
+  Type: ServiceControlPolicy
+- Description: This guardrail prevents deletion of AWS Config aggregation authorizations
+    that AWS Control Tower created in the audit account when you set up your landing
+    zone\. This is a preventive guardrail with mandatory guidance\. By default, this
+    guardrail is enabled on all OUs\.
+  FullDocumentation: "Disallow Deletion of AWS Config Aggregation Authorizations Created\
+    \ by AWS Control Tower<a name=\"config-aggregation-authorization-policy\"></a>\n\
+    \nThis guardrail prevents deletion of AWS Config aggregation authorizations that\
+    \ AWS Control Tower created in the audit account when you set up your landing\
+    \ zone\\. This is a preventive guardrail with mandatory guidance\\. By default,\
+    \ this guardrail is enabled on all OUs\\.\n\nThe artifact for this guardrail is\
+    \ the following SCP\\.\n\n```\n{\n  \"Version\": \"2012-10-17\",\n  \"Statement\"\
+    : [\n    {\n      \"Sid\": \"GRCONFIGAGGREGATIONAUTHORIZATIONPOLICY\",\n     \
+    \ \"Effect\": \"Deny\",\n      \"Action\": [\n        \"config:DeleteAggregationAuthorization\"\
+    \n      ],\n      \"Resource\": [\n        \"arn:aws:config:*:*:aggregation-authorization*\"\
+    \n      ],\n      \"Condition\": {\n        \"ArnNotLike\": {\n          \"aws:PrincipalArn\"\
+    : \"arn:aws:iam::*:role/AWSControlTowerExecution\"\n        },\n        \"StringLike\"\
+    : {\n          \"aws:ResourceTag/aws-control-tower\": \"managed-by-control-tower\"\
+    \n        }\n      }\n    }\n  ]\n}\n```\n\n"
+  Guidance: Mandatory
+  Name: Disallow Deletion of AWS Config Aggregation Authorizations Created by AWS
+    Control Tower
+  Sid: GRCONFIGAGGREGATIONAUTHORIZATIONPOLICY
+  Type: ServiceControlPolicy
+- Description: This guardrail prevents configuration changes to AWS Config\. It ensures
+    that AWS Config records resource configurations in a consistent manner by disallowing
+    AWS Config settings changes\. This is a preventive guardrail with mandatory guidance\.
+    By default, this guardrail is enabled in all OUs\.
+  FullDocumentation: "Disallow Configuration Changes to AWS Config<a name=\"config-disallow-changes\"\
+    ></a>\n\nThis guardrail prevents configuration changes to AWS Config\\. It ensures\
+    \ that AWS Config records resource configurations in a consistent manner by disallowing\
+    \ AWS Config settings changes\\. This is a preventive guardrail with mandatory\
+    \ guidance\\. By default, this guardrail is enabled in all OUs\\.\n\nThe artifact\
+    \ for this guardrail is the following SCP\\.\n\n```\n{\n    \"Version\": \"2012-10-17\"\
+    ,\n    \"Statement\": [\n        {\n            \"Sid\": \"GRCONFIGENABLED\",\n\
+    \            \"Effect\": \"Deny\",\n            \"Action\": [\n              \
+    \  \"config:DeleteConfigurationRecorder\",\n                \"config:DeleteDeliveryChannel\"\
+    ,\n                \"config:DeleteRetentionConfiguration\",\n                \"\
+    config:PutConfigurationRecorder\",\n                \"config:PutDeliveryChannel\"\
+    ,\n                \"config:PutRetentionConfiguration\",\n                \"config:StopConfigurationRecorder\"\
+    \n            ],\n            \"Resource\": [\"*\"],\n            \"Condition\"\
+    : {\n                \"ArnNotLike\": {\n                    \"aws:PrincipalARN\"\
+    :\"arn:aws:iam::*:role/AWSControlTowerExecution\"\n                }\n       \
+    \     }\n        }\n    ]\n}\n```\n\n"
+  Guidance: Mandatory
+  Name: Disallow Configuration Changes to AWS Config
+  Sid: GRCONFIGENABLED
+  Type: ServiceControlPolicy
+- Description: This guardrail enables AWS Config in all available AWS Regions\. This
+    is a preventive guardrail with mandatory guidance\. By default, this guardrail
+    is enabled in all OUs\.
+  FullDocumentation: "Enable AWS Config in All Available Regions<a name=\"config-enable-regions\"\
+    ></a>\n\nThis guardrail enables AWS Config in all available AWS Regions\\. This\
+    \ is a preventive guardrail with mandatory guidance\\. By default, this guardrail\
+    \ is enabled in all OUs\\.\n\nThe artifact for this guardrail is the following\
+    \ SCP\\.\n\n```\n{\n    \"Version\": \"2012-10-17\",\n    \"Statement\": [\n \
+    \       {\n            \"Sid\": \"GRCONFIGENABLED\",\n            \"Effect\":\
+    \ \"Deny\",\n            \"Action\": [\n                \"config:DeleteConfigurationRecorder\"\
+    ,\n                \"config:DeleteDeliveryChannel\",\n                \"config:DeleteRetentionConfiguration\"\
+    ,\n                \"config:PutConfigurationRecorder\",\n                \"config:PutDeliveryChannel\"\
+    ,\n                \"config:PutRetentionConfiguration\",\n                \"config:StopConfigurationRecorder\"\
+    \n            ],\n            \"Resource\": [\"*\"],\n            \"Condition\"\
+    : {\n                \"ArnNotLike\": {\n                    \"aws:PrincipalARN\"\
+    :\"arn:aws:iam::*:role/AWSControlTowerExecution\"\n                }\n       \
+    \     }\n        }\n    ]\n}\n```\n\n"
+  Guidance: Mandatory
+  Name: Enable AWS Config in All Available Regions
+  Sid: GRCONFIGENABLED
+  Type: ServiceControlPolicy
+- Description: This guardrail disallows changes to AWS Config Rules that were implemented
+    by AWS Control Tower when the landing zone was set up\. This is a preventive guardrail
+    with mandatory guidance\. By default, this guardrail is enabled in all OUs\.
+  FullDocumentation: "Disallow Changes to AWS Config Rules Set Up by AWS Control Tower<a\
+    \ name=\"config-rule-disallow-changes\"></a>\n\nThis guardrail disallows changes\
+    \ to AWS Config Rules that were implemented by AWS Control Tower when the landing\
+    \ zone was set up\\. This is a preventive guardrail with mandatory guidance\\\
+    . By default, this guardrail is enabled in all OUs\\.\n\nThe artifact for this\
+    \ guardrail is the following SCP\\.\n\n```\n{\n  \"Version\": \"2012-10-17\",\n\
+    \  \"Statement\": [\n    {\n      \"Sid\": \"GRCONFIGRULEPOLICY\",\n      \"Effect\"\
+    : \"Deny\",\n      \"Action\": [\n        \"config:PutConfigRule\",\n        \"\
+    config:DeleteConfigRule\",\n        \"config:DeleteEvaluationResults\",\n    \
+    \    \"config:DeleteConfigurationAggregator\",\n        \"config:PutConfigurationAggregator\"\
+    \n      ],\n      \"Resource\": [\"*\"],\n      \"Condition\": {\n        \"ArnNotLike\"\
+    : {\n          \"aws:PrincipalARN\": \"arn:aws:iam::*:role/AWSControlTowerExecution\"\
+    \n        },\n        \"StringEquals\": {\n          \"aws:ResourceTag/aws-control-tower\"\
+    : \"managed-by-control-tower\"\n        }\n      }\n    }\n  ]\n}\n```\n\n"
+  Guidance: Mandatory
+  Name: Disallow Changes to AWS Config Rules Set Up by AWS Control Tower
+  Sid: GRCONFIGRULEPOLICY
+  Type: ServiceControlPolicy
+- Description: This guardrail prevents changes to the tags that AWS Control Tower
+    created when you set up your landing zone, for AWS Config resources that collect
+    configuration and compliance data\. It denies any `TagResource` and `UntagResource`
+    operation for aggregation authorizations tagged by AWS Control Tower\. This is
+    a preventive guardrail with mandatory guidance\. By default, this guardrail is
+    enabled in all OUs\.
+  FullDocumentation: "Disallow Changes to Tags Created by AWS Control Tower for AWS\
+    \ Config Resources<a name=\"cloudwatch-disallow-config-changes\"></a>\n\nThis\
+    \ guardrail prevents changes to the tags that AWS Control Tower created when you\
+    \ set up your landing zone, for AWS Config resources that collect configuration\
+    \ and compliance data\\. It denies any `TagResource` and `UntagResource` operation\
+    \ for aggregation authorizations tagged by AWS Control Tower\\. This is a preventive\
+    \ guardrail with mandatory guidance\\. By default, this guardrail is enabled in\
+    \ all OUs\\.\n\nThe artifact for this guardrail is the following SCP\\.\n\n```\n\
+    {\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Sid\": \"\
+    GRCONFIGRULETAGSPOLICY\",\n      \"Effect\": \"Deny\",\n      \"Action\": [\n\
+    \        \"config:TagResource\",\n        \"config:UntagResource\"\n      ],\n\
+    \      \"Resource\": [\"*\"],\n      \"Condition\": {\n        \"ArnNotLike\"\
+    : {\n          \"aws:PrincipalARN\": \"arn:aws:iam::*:role/AWSControlTowerExecution\"\
+    \n        },\n        \"ForAllValues:StringEquals\": {\n          \"aws:TagKeys\"\
+    : \"aws-control-tower\"\n        }\n      }\n    }\n  ]\n}\n```\n\n"
+  Guidance: Mandatory
+  Name: Disallow Changes to Tags Created by AWS Control Tower for AWS Config Resources
+  Sid: GRCONFIGRULETAGSPOLICY
+  Type: ServiceControlPolicy
+- Description: This guardrail prevents changes to encryption for the Amazon S3 buckets
+    that AWS Control Tower creates in the log archive account\. This is a preventive
+    guardrail with mandatory guidance\. By default, this guardrail is enabled on the
+    Security OU\. It cannot be enabled on additional OUs\.
+  FullDocumentation: "Disallow Changes to Encryption Configuration for AWS Control\
+    \ Tower Created Amazon S3 Buckets in Log Archive<a name=\"disallow-changes-s3-buckets-created\"\
+    ></a>\n\nThis guardrail prevents changes to encryption for the Amazon S3 buckets\
+    \ that AWS Control Tower creates in the log archive account\\. This is a preventive\
+    \ guardrail with mandatory guidance\\. By default, this guardrail is enabled on\
+    \ the Security OU\\. It cannot be enabled on additional OUs\\.\n\nThe artifact\
+    \ for this guardrail is the following service control policy \\(SCP\\)\\.\n\n\
+    ```\n{\n    \"Version\": \"2012-10-17\",\n    \"Statement\": [\n        {\n  \
+    \          \"Sid\": \"GRCTAUDITBUCKETENCRYPTIONCHANGESPROHIBITED\",\n        \
+    \    \"Effect\": \"Deny\",\n            \"Action\": [\n                \"s3:PutEncryptionConfiguration\"\
+    \n            ],\n            \"Resource\": [\"arn:aws:s3:::aws-controltower*\"\
+    ],\n            \"Condition\": {\n                \"ArnNotLike\": {\n        \
+    \            \"aws:PrincipalARN\":\"arn:aws:iam::*:role/AWSControlTowerExecution\"\
+    \n                }\n            }\n        }\n    ]\n}\n```\n\n"
+  Guidance: Mandatory
+  Name: Disallow Changes to Encryption Configuration for AWS Control Tower Created
+    Amazon S3 Buckets in Log Archive
+  Sid: GRCTAUDITBUCKETENCRYPTIONCHANGESPROHIBITED
+  Type: ServiceControlPolicy
+- Description: This guardrail prevents lifecycle configuration changes for the Amazon
+    S3 buckets that AWS Control Tower creates in the log archive account\. This is
+    a preventive guardrail with mandatory guidance\. By default, this guardrail is
+    enabled on the Security OU\. It cannot be enabled on additional OUs\.
+  FullDocumentation: "Disallow Changes to Lifecycle Configuration for AWS Control\
+    \ Tower Created Amazon S3 Buckets in Log Archive<a name=\"disallow-lifecycle-changes-s3-buckets-created\"\
+    ></a>\n\nThis guardrail prevents lifecycle configuration changes for the Amazon\
+    \ S3 buckets that AWS Control Tower creates in the log archive account\\. This\
+    \ is a preventive guardrail with mandatory guidance\\. By default, this guardrail\
+    \ is enabled on the Security OU\\. It cannot be enabled on additional OUs\\.\n\
+    \nThe artifact for this guardrail is the following SCP\\.\n\n```\n{\n    \"Version\"\
+    : \"2012-10-17\",\n    \"Statement\": [\n        {\n            \"Sid\": \"GRCTAUDITBUCKETLIFECYCLECONFIGURATIONCHANGESPROHIBITED\"\
+    ,\n            \"Effect\": \"Deny\",\n            \"Action\": [\n            \
+    \    \"s3:PutLifecycleConfiguration\"\n            ],\n            \"Resource\"\
+    : [\"arn:aws:s3:::aws-controltower*\"],\n            \"Condition\": {\n      \
+    \          \"ArnNotLike\": {\n                    \"aws:PrincipalARN\":\"arn:aws:iam::*:role/AWSControlTowerExecution\"\
+    \n                }\n            }\n        }\n    ]\n}\n```\n\n"
+  Guidance: Mandatory
+  Name: Disallow Changes to Lifecycle Configuration for AWS Control Tower Created
+    Amazon S3 Buckets in Log Archive
+  Sid: GRCTAUDITBUCKETLIFECYCLECONFIGURATIONCHANGESPROHIBITED
+  Type: ServiceControlPolicy
+- Description: This guardrail prevents changes to logging configuration for the Amazon
+    S3 buckets that AWS Control Tower creates in the log archive account\. This is
+    a preventive guardrail with mandatory guidance\. By default, this guardrail is
+    enabled on the Security OU\. It cannot be enabled on additional OUs\.
+  FullDocumentation: "Disallow Changes to Logging Configuration for AWS Control Tower\
+    \ Created Amazon S3 Buckets in Log Archive<a name=\"disallow-logging-changes-s3-buckets-created\"\
+    ></a>\n\nThis guardrail prevents changes to logging configuration for the Amazon\
+    \ S3 buckets that AWS Control Tower creates in the log archive account\\. This\
+    \ is a preventive guardrail with mandatory guidance\\. By default, this guardrail\
+    \ is enabled on the Security OU\\. It cannot be enabled on additional OUs\\.\n\
+    \nThe artifact for this guardrail is the following SCP\\.\n\n```\n{\n    \"Version\"\
+    : \"2012-10-17\",\n    \"Statement\": [\n        {\n            \"Sid\": \"GRCTAUDITBUCKETLOGGINGCONFIGURATIONCHANGESPROHIBITED\"\
+    ,\n            \"Effect\": \"Deny\",\n            \"Action\": [\n            \
+    \    \"s3:PutBucketLogging\"\n            ],\n            \"Resource\": [\"arn:aws:s3:::aws-controltower*\"\
+    ],\n            \"Condition\": {\n                \"ArnNotLike\": {\n        \
+    \            \"aws:PrincipalARN\":\"arn:aws:iam::*:role/AWSControlTowerExecution\"\
+    \n                }\n            }\n        }\n    ]\n}\n```\n\n"
+  Guidance: Mandatory
+  Name: Disallow Changes to Logging Configuration for AWS Control Tower Created Amazon
+    S3 Buckets in Log Archive
+  Sid: GRCTAUDITBUCKETLOGGINGCONFIGURATIONCHANGESPROHIBITED
+  Type: ServiceControlPolicy
+- Description: This guardrail prevents changes to bucket policy for the Amazon S3
+    buckets that AWS Control Tower creates in the log archive account\. This is a
+    preventive guardrail with mandatory guidance\. By default, this guardrail is enabled
+    on the Security OU\. It cannot be enabled on additional OUs\.
+  FullDocumentation: "Disallow Changes to Bucket Policy for AWS Control Tower Created\
+    \ Amazon S3 Buckets in Log Archive<a name=\"disallow-policy-changes-s3-buckets-created\"\
+    ></a>\n\nThis guardrail prevents changes to bucket policy for the Amazon S3 buckets\
+    \ that AWS Control Tower creates in the log archive account\\. This is a preventive\
+    \ guardrail with mandatory guidance\\. By default, this guardrail is enabled on\
+    \ the Security OU\\. It cannot be enabled on additional OUs\\.\n\nThe artifact\
+    \ for this guardrail is the following SCP\\. \n\n```\n{\n    \"Version\": \"2012-10-17\"\
+    ,\n    \"Statement\": [\n        {\n            \"Sid\": \"GRCTAUDITBUCKETPOLICYCHANGESPROHIBITED\"\
+    ,\n            \"Effect\": \"Deny\",\n            \"Action\": [\n            \
+    \    \"s3:PutBucketPolicy\",\n                \"s3:DeleteBucketPolicy\"\n    \
+    \        ],\n            \"Resource\": [\"arn:aws:s3:::aws-controltower*\"],\n\
+    \            \"Condition\": {\n                \"ArnNotLike\": {\n           \
+    \         \"aws:PrincipalARN\":\"arn:aws:iam::*:role/AWSControlTowerExecution\"\
+    \n                }\n            }\n        }\n    ]\n}\n```\n\n"
+  Guidance: Mandatory
+  Name: Disallow Changes to Bucket Policy for AWS Control Tower Created Amazon S3
+    Buckets in Log Archive
+  Sid: GRCTAUDITBUCKETPOLICYCHANGESPROHIBITED
+  Type: ServiceControlPolicy
+- Description: "An updated version has been released for the mandatory guardrail `AWS-GR_IAM_ROLE_CHANGE_PROHIBITED`\\\
+    .\n\nThis change to the guardrail is required because accounts in OUs that are\
+    \ being enrolled into AWS Control Tower must have the `AWSControlTowerExecution`\
+    \ role enabled\\. The previous version of the guardrail prevents this role from\
+    \ being created\\.\n\nAWS Control Tower updated the existing guardrail to add\
+    \ an exception so that AWS CloudFormation StackSets can create the `AWSControlTowerExecution`\
+    \ role\\. As a second measure, this new guardrail protects the StackSets role\
+    \ to prevent principals in the child account from gaining access\\.\n\nThe new\
+    \ guardrail version performs the following actions, in addition to all actions\
+    \ provided in the previous version:\n+ Allows the `stacksets-exec-*` role \\(owned\
+    \ by AWS CloudFormation\\) to perform actions on IAM roles that were created by\
+    \ AWS Control Tower\\.\n+ Prevents changes to any IAM role in child accounts,\
+    \ where the IAM role name matches the pattern `stacksets-exec-*`\\.\n\n**The update\
+    \ to the guardrail version affects your OUs and accounts as follows:**\n+ If you\
+    \ extend governance to an OU, that incoming OU receives the updated version of\
+    \ the guardrail as part of the registration process\\. You do not need to update\
+    \ your landing zone to get the latest version for this OU\\. AWS Control Tower\
+    \ applies the latest version automatically to OUs that register\\.\n+ If you update\
+    \ or repair your landing zone at any time after this release, your guardrail will\
+    \ be updated to this version for future provisioning\\.\n+ OUs created in or registered\
+    \ with AWS Control Tower before this release date, and which are part of a landing\
+    \ zone that has not been repaired or updated after the release date, will continue\
+    \ to operate with the old version of the guardrail, which blocks the creation\
+    \ of the `AWSControlTowerExecution` role\\.\n+ One consequence of this guardrail\
+    \ update is that your OUs can be functioning with different versions of the guardrail\\\
+    . Update your landing zone to apply the updated version of the guardrail to your\
+    \ OUs uniformly\\.\n\nThe artifact of the updated guardrail is the following SCP\\\
+    .\n\n```\n       \n{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n   \
+    \  {\n        \"Sid\": \"GRIAMROLEPOLICY\",\n        \"Effect\": \"Deny\",\n \
+    \       \"Action\": [\n          \"iam:AttachRolePolicy\",\n          \"iam:CreateRole\"\
+    ,\n          \"iam:DeleteRole\",\n          \"iam:DeleteRolePermissionsBoundary\"\
+    ,\n          \"iam:DeleteRolePolicy\",\n          \"iam:DetachRolePolicy\",\n\
+    \          \"iam:PutRolePermissionsBoundary\",\n          \"iam:PutRolePolicy\"\
+    ,\n          \"iam:UpdateAssumeRolePolicy\",\n          \"iam:UpdateRole\",\n\
+    \          \"iam:UpdateRoleDescription\"\n        ],\n        \"Resource\": [\n\
+    \          \"arn:aws:iam::*:role/aws-controltower-*\",\n          \"arn:aws:iam::*:role/*AWSControlTower*\"\
+    ,\n          \"arn:aws:iam::*:role/stacksets-exec-*\"    #this line is new\n \
+    \       ],\n        \"Condition\": {\n          \"ArnNotLike\": {\n          \
+    \  \"aws:PrincipalArn\": [\n                \"arn:aws:iam::*:role/AWSControlTowerExecution\"\
+    ,\n                \"arn:aws:iam::*:role/stacksets-exec-*\"    #this line is new\n\
+    \         ]\n       }\n      }\n    }\n  ]\n}\n```\n\nThe former artifact for\
+    \ this guardrail is the following SCP\\.\n\n```\n{\n  \"Version\": \"2012-10-17\"\
+    ,\n  \"Statement\": [\n    {\n      \"Sid\": \"GRIAMROLEPOLICY\",\n      \"Effect\"\
+    : \"Deny\",\n      \"Action\": [\n        \"iam:AttachRolePolicy\",\n        \"\
+    iam:CreateRole\",\n        \"iam:DeleteRole\",\n        \"iam:DeleteRolePermissionsBoundary\"\
+    ,\n        \"iam:DeleteRolePolicy\",\n        \"iam:DetachRolePolicy\",\n    \
+    \    \"iam:PutRolePermissionsBoundary\",\n        \"iam:PutRolePolicy\",\n   \
+    \     \"iam:UpdateAssumeRolePolicy\",\n        \"iam:UpdateRole\",\n        \"\
+    iam:UpdateRoleDescription\"\n      ],\n      \"Resource\": [\n        \"arn:aws:iam::*:role/aws-controltower-*\"\
+    ,\n        \"arn:aws:iam::*:role/*AWSControlTower*\"\n      ],\n      \"Condition\"\
+    : {\n        \"ArnNotLike\": {\n          \"aws:PrincipalARN\":\"arn:aws:iam::*:role/AWSControlTowerExecution\"\
+    \n        }\n      }\n    }\n  ]\n}\n```"
+  FullDocumentation: "Guardrail update<a name=\"guardrail-update-hotfix\"></a>\n\n\
+    An updated version has been released for the mandatory guardrail `AWS-GR_IAM_ROLE_CHANGE_PROHIBITED`\\\
+    .\n\nThis change to the guardrail is required because accounts in OUs that are\
+    \ being enrolled into AWS Control Tower must have the `AWSControlTowerExecution`\
+    \ role enabled\\. The previous version of the guardrail prevents this role from\
+    \ being created\\.\n\nAWS Control Tower updated the existing guardrail to add\
+    \ an exception so that AWS CloudFormation StackSets can create the `AWSControlTowerExecution`\
+    \ role\\. As a second measure, this new guardrail protects the StackSets role\
+    \ to prevent principals in the child account from gaining access\\.\n\nThe new\
+    \ guardrail version performs the following actions, in addition to all actions\
+    \ provided in the previous version:\n+ Allows the `stacksets-exec-*` role \\(owned\
+    \ by AWS CloudFormation\\) to perform actions on IAM roles that were created by\
+    \ AWS Control Tower\\.\n+ Prevents changes to any IAM role in child accounts,\
+    \ where the IAM role name matches the pattern `stacksets-exec-*`\\.\n\n**The update\
+    \ to the guardrail version affects your OUs and accounts as follows:**\n+ If you\
+    \ extend governance to an OU, that incoming OU receives the updated version of\
+    \ the guardrail as part of the registration process\\. You do not need to update\
+    \ your landing zone to get the latest version for this OU\\. AWS Control Tower\
+    \ applies the latest version automatically to OUs that register\\.\n+ If you update\
+    \ or repair your landing zone at any time after this release, your guardrail will\
+    \ be updated to this version for future provisioning\\.\n+ OUs created in or registered\
+    \ with AWS Control Tower before this release date, and which are part of a landing\
+    \ zone that has not been repaired or updated after the release date, will continue\
+    \ to operate with the old version of the guardrail, which blocks the creation\
+    \ of the `AWSControlTowerExecution` role\\.\n+ One consequence of this guardrail\
+    \ update is that your OUs can be functioning with different versions of the guardrail\\\
+    . Update your landing zone to apply the updated version of the guardrail to your\
+    \ OUs uniformly\\.\n\nThe artifact of the updated guardrail is the following SCP\\\
+    .\n\n```\n       \n{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n   \
+    \  {\n        \"Sid\": \"GRIAMROLEPOLICY\",\n        \"Effect\": \"Deny\",\n \
+    \       \"Action\": [\n          \"iam:AttachRolePolicy\",\n          \"iam:CreateRole\"\
+    ,\n          \"iam:DeleteRole\",\n          \"iam:DeleteRolePermissionsBoundary\"\
+    ,\n          \"iam:DeleteRolePolicy\",\n          \"iam:DetachRolePolicy\",\n\
+    \          \"iam:PutRolePermissionsBoundary\",\n          \"iam:PutRolePolicy\"\
+    ,\n          \"iam:UpdateAssumeRolePolicy\",\n          \"iam:UpdateRole\",\n\
+    \          \"iam:UpdateRoleDescription\"\n        ],\n        \"Resource\": [\n\
+    \          \"arn:aws:iam::*:role/aws-controltower-*\",\n          \"arn:aws:iam::*:role/*AWSControlTower*\"\
+    ,\n          \"arn:aws:iam::*:role/stacksets-exec-*\"    #this line is new\n \
+    \       ],\n        \"Condition\": {\n          \"ArnNotLike\": {\n          \
+    \  \"aws:PrincipalArn\": [\n                \"arn:aws:iam::*:role/AWSControlTowerExecution\"\
+    ,\n                \"arn:aws:iam::*:role/stacksets-exec-*\"    #this line is new\n\
+    \         ]\n       }\n      }\n    }\n  ]\n}\n```\n\nThe former artifact for\
+    \ this guardrail is the following SCP\\.\n\n```\n{\n  \"Version\": \"2012-10-17\"\
+    ,\n  \"Statement\": [\n    {\n      \"Sid\": \"GRIAMROLEPOLICY\",\n      \"Effect\"\
+    : \"Deny\",\n      \"Action\": [\n        \"iam:AttachRolePolicy\",\n        \"\
+    iam:CreateRole\",\n        \"iam:DeleteRole\",\n        \"iam:DeleteRolePermissionsBoundary\"\
+    ,\n        \"iam:DeleteRolePolicy\",\n        \"iam:DetachRolePolicy\",\n    \
+    \    \"iam:PutRolePermissionsBoundary\",\n        \"iam:PutRolePolicy\",\n   \
+    \     \"iam:UpdateAssumeRolePolicy\",\n        \"iam:UpdateRole\",\n        \"\
+    iam:UpdateRoleDescription\"\n      ],\n      \"Resource\": [\n        \"arn:aws:iam::*:role/aws-controltower-*\"\
+    ,\n        \"arn:aws:iam::*:role/*AWSControlTower*\"\n      ],\n      \"Condition\"\
+    : {\n        \"ArnNotLike\": {\n          \"aws:PrincipalARN\":\"arn:aws:iam::*:role/AWSControlTowerExecution\"\
+    \n        }\n      }\n    }\n  ]\n}\n```\n\n"
+  Guidance: Mandatory
+  Name: Guardrail update
+  Sid: GRIAMROLEPOLICY
+  Type: ServiceControlPolicy
+- Description: This guardrail disallows changes to AWS Lambda functions set up by
+    AWS Control Tower\. This is a preventive guardrail with mandatory guidance\. By
+    default, this guardrail is enabled in all OUs\.
+  FullDocumentation: "Disallow Changes to AWS Lambda Functions Set Up by AWS Control\
+    \ Tower<a name=\"lambda-disallow-changes\"></a>\n\nThis guardrail disallows changes\
+    \ to AWS Lambda functions set up by AWS Control Tower\\. This is a preventive\
+    \ guardrail with mandatory guidance\\. By default, this guardrail is enabled in\
+    \ all OUs\\.\n\nThe artifact for this guardrail is the following SCP\\.\n\n```\n\
+    {\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Sid\": \"\
+    GRLAMBDAFUNCTIONPOLICY\",\n      \"Effect\": \"Deny\",\n      \"Action\": [\n\
+    \        \"lambda:AddPermission\",\n        \"lambda:CreateEventSourceMapping\"\
+    ,\n        \"lambda:CreateFunction\",\n        \"lambda:DeleteEventSourceMapping\"\
+    ,\n        \"lambda:DeleteFunction\",\n        \"lambda:DeleteFunctionConcurrency\"\
+    ,\n        \"lambda:PutFunctionConcurrency\",\n        \"lambda:RemovePermission\"\
+    ,\n        \"lambda:UpdateEventSourceMapping\",\n        \"lambda:UpdateFunctionCode\"\
+    ,\n        \"lambda:UpdateFunctionConfiguration\"\n      ],\n      \"Resource\"\
+    : [\n        \"arn:aws:lambda:*:*:function:aws-controltower-*\"\n      ],\n  \
+    \    \"Condition\": {\n        \"ArnNotLike\": {\n          \"aws:PrincipalARN\"\
+    :\"arn:aws:iam::*:role/AWSControlTowerExecution\"\n        }\n      }\n    }\n\
+    \  ]\n}\n```\n\n"
+  Guidance: Mandatory
+  Name: Disallow Changes to AWS Lambda Functions Set Up by AWS Control Tower
+  Sid: GRLAMBDAFUNCTIONPOLICY
+  Type: ServiceControlPolicy
+- Description: This guardrail prevents changes to the retention policy for Amazon
+    CloudWatch Logs log groups that AWS Control Tower created in the log archive account
+    when you set up your landing zone\. It also prevents modifying the log retention
+    policy in customer accounts\. This is a preventive guardrail with mandatory guidance\.
+    By default, this guardrail is enabled on all OUs\.
+  FullDocumentation: "Disallow Changes to Amazon CloudWatch Logs Log Groups set up\
+    \ by AWS Control Tower<a name=\"log-group-deletion-policy\"></a>\n\nThis guardrail\
+    \ prevents changes to the retention policy for Amazon CloudWatch Logs log groups\
+    \ that AWS Control Tower created in the log archive account when you set up your\
+    \ landing zone\\. It also prevents modifying the log retention policy in customer\
+    \ accounts\\. This is a preventive guardrail with mandatory guidance\\. By default,\
+    \ this guardrail is enabled on all OUs\\.\n\nThe artifact for this guardrail is\
+    \ the following SCP\\.\n\n```\n{\n    \"Version\": \"2012-10-17\",\n    \"Statement\"\
+    : [\n        {\n            \"Sid\": \"GRLOGGROUPPOLICY\",\n            \"Effect\"\
+    : \"Deny\",\n            \"Action\": [\n                \"logs:DeleteLogGroup\"\
+    ,\n                \"logs:PutRetentionPolicy\"\n            ],\n            \"\
+    Resource\": [\n                \"arn:aws:logs:*:*:log-group:*aws-controltower*\"\
+    \n            ],\n            \"Condition\": {\n                \"StringNotLike\"\
+    : {\n                    \"aws:PrincipalArn\": [\n                        \"arn:aws:iam::*:role/AWSControlTowerExecution\"\
+    \n                    ]\n                }\n            }\n        }\n    ]\n\
+    }\n```\n\n"
+  Guidance: Mandatory
+  Name: Disallow Changes to Amazon CloudWatch Logs Log Groups set up by AWS Control
+    Tower
+  Sid: GRLOGGROUPPOLICY
+  Type: ServiceControlPolicy
+- Description: Secures your AWS accounts by disallowing account access with root user
+    credentials, which are credentials of the account owner that allow unrestricted
+    access to all resources in the account\. Instead, we recommend that you create
+    AWS Identity and Access Management \(IAM\) users for everyday interaction with
+    your AWS account\. This is a preventive guardrail with strongly recommended guidance\.
+    By default, this guardrail is not enabled\.
+  FullDocumentation: "Disallow Actions as a Root User<a name=\"disallow-root-auser-actions\"\
+    ></a>\n\nSecures your AWS accounts by disallowing account access with root user\
+    \ credentials, which are credentials of the account owner that allow unrestricted\
+    \ access to all resources in the account\\. Instead, we recommend that you create\
+    \ AWS Identity and Access Management \\(IAM\\) users for everyday interaction\
+    \ with your AWS account\\. This is a preventive guardrail with strongly recommended\
+    \ guidance\\. By default, this guardrail is not enabled\\.\n\nThe artifact for\
+    \ this guardrail is the following SCP\\.\n\n```\n{\n  \"Version\": \"2012-10-17\"\
+    ,\n  \"Statement\": [\n    {\n      \"Sid\": \"GRRESTRICTROOTUSER\",\n      \"\
+    Effect\": \"Deny\",\n      \"Action\": \"*\",\n      \"Resource\": [\n       \
+    \ \"*\"\n      ],\n      \"Condition\": {\n        \"StringLike\": {\n       \
+    \   \"aws:PrincipalArn\": [\n            \"arn:aws:iam::*:root\"\n          ]\n\
+    \        }\n      }\n    }\n  ]\n}\n```\n\n"
+  Guidance: Recommended
+  Name: Disallow Actions as a Root User
+  Sid: GRRESTRICTROOTUSER
+  Type: ServiceControlPolicy
+- Description: Secures your AWS accounts by disallowing creation of access keys for
+    the root user\. We recommend that you instead create access keys for the IAM users
+    with limited permissions to interact with your AWS account\. This is a preventive
+    guardrail with strongly recommended guidance\. By default, this guardrail is not
+    enabled\.
+  FullDocumentation: "Disallow Creation of Access Keys for the Root User<a name=\"\
+    disallow-root-access-keys\"></a>\n\nSecures your AWS accounts by disallowing creation\
+    \ of access keys for the root user\\. We recommend that you instead create access\
+    \ keys for the IAM users with limited permissions to interact with your AWS account\\\
+    . This is a preventive guardrail with strongly recommended guidance\\. By default,\
+    \ this guardrail is not enabled\\.\n\nThe artifact for this guardrail is the following\
+    \ SCP\\.\n\n```\n{\n    \"Version\": \"2012-10-17\",\n    \"Statement\": [\n \
+    \       {\n            \"Sid\": \"GRRESTRICTROOTUSERACCESSKEYS\",\n          \
+    \  \"Effect\": \"Deny\",\n            \"Action\": \"iam:CreateAccessKey\",\n \
+    \           \"Resource\": [\n                \"*\"\n            ],\n         \
+    \   \"Condition\": {\n                \"StringLike\": {\n                    \"\
+    aws:PrincipalArn\": [\n                        \"arn:aws:iam::*:root\"\n     \
+    \               ]\n                }\n            }\n        }\n    ]\n}\n```\n\
+    \n"
+  Guidance: Recommended
+  Name: Disallow Creation of Access Keys for the Root User
+  Sid: GRRESTRICTROOTUSERACCESSKEYS
+  Type: ServiceControlPolicy
+- Description: Prevents changes to the way your Amazon S3 buckets have been set up
+    to handle replication within Regions or across Regions\. For example, if you set
+    up your buckets with single\-region replication, to restrict the location of your
+    Amazon S3 data to a single AWS Region \(thereby disabling any automatic, asynchronous
+    copying of objects across buckets to other AWS Regions\), then this guardrail
+    prevents that replication setting from being changed\. This is a preventive guardrail
+    with elective guidance\. By default, this guardrail is not enabled\.
+  FullDocumentation: "Disallow Changes to Replication Configuration for Amazon S3\
+    \ Buckets<a name=\"disallow-s3-ccr\"></a>\n\nPrevents changes to the way your\
+    \ Amazon S3 buckets have been set up to handle replication within Regions or across\
+    \ Regions\\. For example, if you set up your buckets with single\\-region replication,\
+    \ to restrict the location of your Amazon S3 data to a single AWS Region \\(thereby\
+    \ disabling any automatic, asynchronous copying of objects across buckets to other\
+    \ AWS Regions\\), then this guardrail prevents that replication setting from being\
+    \ changed\\. This is a preventive guardrail with elective guidance\\. By default,\
+    \ this guardrail is not enabled\\.\n\nThe artifact for this guardrail is the following\
+    \ SCP\\.\n\n```\n{\n    \"Version\": \"2012-10-17\",\n    \"Statement\": [\n \
+    \       {\n            \"Sid\": \"GRRESTRICTS3CROSSREGIONREPLICATION\",\n    \
+    \        \"Effect\": \"Deny\",\n            \"Action\": [\n                \"\
+    s3:PutReplicationConfiguration\"\n            ],\n            \"Resource\": [\n\
+    \                \"*\"\n            ]\n        }\n    ]\n}\n```\n\n"
+  Guidance: Elective
+  Name: Disallow Changes to Replication Configuration for Amazon S3 Buckets
+  Sid: GRRESTRICTS3CROSSREGIONREPLICATION
+  Type: ServiceControlPolicy
+- Description: Protects your Amazon S3 buckets by requiring MFA for delete actions\.
+    MFA requires an extra authentication code after the user name and password are
+    successful\. This is a preventive guardrail with elective guidance\. By default,
+    this guardrail is not enabled\.
+  FullDocumentation: "Disallow Delete Actions on Amazon S3 Buckets Without MFA<a name=\"\
+    disallow-s3-delete-mfa\"></a>\n\nProtects your Amazon S3 buckets by requiring\
+    \ MFA for delete actions\\. MFA requires an extra authentication code after the\
+    \ user name and password are successful\\. This is a preventive guardrail with\
+    \ elective guidance\\. By default, this guardrail is not enabled\\.\n\nThe artifact\
+    \ for this guardrail is the following SCP\\.\n\n```\n{\n    \"Version\": \"2012-10-17\"\
+    ,\n    \"Statement\": [\n        {\n            \"Sid\": \"GRRESTRICTS3DELETEWITHOUTMFA\"\
+    ,\n            \"Effect\": \"Deny\",\n            \"Action\": [\n            \
+    \    \"s3:DeleteObject\",\n                \"s3:DeleteBucket\"\n            ],\n\
+    \            \"Resource\": [\n                \"*\"\n            ],\n        \
+    \    \"Condition\": {\n                \"BoolIfExists\": {\n                 \
+    \   \"aws:MultiFactorAuthPresent\": [\n                        \"false\"\n   \
+    \                 ]\n                }\n            }\n        }\n    ]\n}\n```\n\
+    \n"
+  Guidance: Elective
+  Name: Disallow Delete Actions on Amazon S3 Buckets Without MFA
+  Sid: GRRESTRICTS3DELETEWITHOUTMFA
+  Type: ServiceControlPolicy
+- Description: This guardrail disallows changes to Amazon SNS subscriptions set up
+    by AWS Control Tower\. It protects the integrity of Amazon SNS subscriptions settings
+    for your landing zone, to trigger notifications for AWS Config Rules compliance
+    changes\. This is a preventive guardrail with mandatory guidance\. By default,
+    this guardrail is enabled in all OUs\.
+  FullDocumentation: "Disallow Changes to Amazon SNS Subscriptions Set Up by AWS Control\
+    \ Tower<a name=\"sns-subscriptions-disallow-changes\"></a>\n\nThis guardrail disallows\
+    \ changes to Amazon SNS subscriptions set up by AWS Control Tower\\. It protects\
+    \ the integrity of Amazon SNS subscriptions settings for your landing zone, to\
+    \ trigger notifications for AWS Config Rules compliance changes\\. This is a preventive\
+    \ guardrail with mandatory guidance\\. By default, this guardrail is enabled in\
+    \ all OUs\\.\n\nThe artifact for this guardrail is the following SCP\\.\n\n```\n\
+    {\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Sid\": \"\
+    GRSNSSUBSCRIPTIONPOLICY\",\n      \"Effect\": \"Deny\",\n      \"Action\": [\n\
+    \        \"sns:Subscribe\",\n        \"sns:Unsubscribe\"\n      ],\n      \"Resource\"\
+    : [\n        \"arn:aws:sns:*:*:aws-controltower-SecurityNotifications\"\n    \
+    \  ],\n      \"Condition\": {\n        \"ArnNotLike\": {\n          \"aws:PrincipalARN\"\
+    :\"arn:aws:iam::*:role/AWSControlTowerExecution\"\n        }\n      }\n    }\n\
+    \  ]\n}\n```"
+  Guidance: Mandatory
+  Name: Disallow Changes to Amazon SNS Subscriptions Set Up by AWS Control Tower
+  Sid: GRSNSSUBSCRIPTIONPOLICY
+  Type: ServiceControlPolicy
+- Description: This guardrail disallows changes to Amazon SNS set up by AWS Control
+    Tower\. It protects the integrity of Amazon SNS notification settings for your
+    landing zone\. This is a preventive guardrail with mandatory guidance\. By default,
+    this guardrail is enabled in all OUs\.
+  FullDocumentation: "Disallow Changes to Amazon SNS Set Up by AWS Control Tower<a\
+    \ name=\"sns-disallow-changes\"></a>\n\nThis guardrail disallows changes to Amazon\
+    \ SNS set up by AWS Control Tower\\. It protects the integrity of Amazon SNS notification\
+    \ settings for your landing zone\\. This is a preventive guardrail with mandatory\
+    \ guidance\\. By default, this guardrail is enabled in all OUs\\.\n\nThe artifact\
+    \ for this guardrail is the following SCP\\.\n\n```\n{\n  \"Version\": \"2012-10-17\"\
+    ,\n  \"Statement\": [\n    {\n      \"Sid\": \"GRSNSTOPICPOLICY\",\n      \"Effect\"\
+    : \"Deny\",\n      \"Action\": [\n        \"sns:AddPermission\",\n        \"sns:CreateTopic\"\
+    ,\n        \"sns:DeleteTopic\",\n        \"sns:RemovePermission\",\n        \"\
+    sns:SetTopicAttributes\"\n      ],\n      \"Resource\": [\n        \"arn:aws:sns:*:*:aws-controltower-*\"\
+    \n      ],\n      \"Condition\": {\n        \"ArnNotLike\": {\n          \"aws:PrincipalARN\"\
+    :\"arn:aws:iam::*:role/AWSControlTowerExecution\"\n        }\n      }\n    }\n\
+    \  ]\n}\n```\n\n"
+  Guidance: Mandatory
+  Name: Disallow Changes to Amazon SNS Set Up by AWS Control Tower
+  Sid: GRSNSTOPICPOLICY
+  Type: ServiceControlPolicy
+- Description: This guardrail detects whether MFA is enabled for AWS IAMusers\. You
+    can protect your account by requiring MFA for all AWS IAM users in the account\.
+    MFA requires an additional authentication code after the user name and password
+    are successful\. This guardrail does not change the status of the account\. This
+    is a detective guardrail with elective guidance\. By default, this guardrail is
+    not enabled\.
+  FullDocumentation: "Detect Whether MFA is Enabled for AWS IAM Users<a name=\"disallow-access-mfa\"\
+    ></a>\n\nThis guardrail detects whether MFA is enabled for AWS IAMusers\\. You\
+    \ can protect your account by requiring MFA for all AWS IAM users in the account\\\
+    . MFA requires an additional authentication code after the user name and password\
+    \ are successful\\. This guardrail does not change the status of the account\\\
+    . This is a detective guardrail with elective guidance\\. By default, this guardrail\
+    \ is not enabled\\.\n\nThe artifact for this guardrail is the following AWS Config\
+    \ rule\\.\n\n```\nAWSTemplateFormatVersion: 2010-09-09\nDescription: Configure\
+    \ AWS Config rules to check whether the IAM users have MFA enabled\nParameters:\n\
+    \  ConfigRuleName:\n    Type: 'String'\n    Description: 'Name for the Config\
+    \ rule'\n  MaximumExecutionFrequency:\n    Type: String\n    Default: 1hour\n\
+    \    Description: The frequency that you want AWS Config to run evaluations for\
+    \ the rule.\n    AllowedValues:\n    - 1hour\n    - 3hours\n    - 6hours\n   \
+    \ - 12hours\n    - 24hours\nMappings:\n  Settings:\n    FrequencyMap:\n      1hour\
+    \   : One_Hour\n      3hours  : Three_Hours\n      6hours  : Six_Hours\n     \
+    \ 12hours : Twelve_Hours\n      24hours : TwentyFour_Hours\nResources:\n  CheckForIAMUserMFA:\n\
+    \    Type: AWS::Config::ConfigRule\n    Properties:\n      ConfigRuleName: !Sub\
+    \ ${ConfigRuleName}\n      Description: Checks whether the AWS Identity and Access\
+    \ Management users have multi-factor authentication (MFA) enabled. The rule is\
+    \ COMPLIANT if MFA is enabled.\n      Source:\n        Owner: AWS\n        SourceIdentifier:\
+    \ IAM_USER_MFA_ENABLED\n      MaximumExecutionFrequency:\n        !FindInMap\n\
+    \          - Settings\n          - FrequencyMap\n          - !Ref MaximumExecutionFrequency\n\
+    ```\n\n"
+  Guidance: Elective
+  Name: Detect Whether MFA is Enabled for AWS IAM Users
+  Sid: IAM_USER_MFA_ENABLED
+  Type: ConfigRule
+- Description: This guardrail detects whether internet connections are allowed through
+    remote services such as the Secure Shell \(SSH\) protocol\. This guardrail does
+    not change the status of the account\. This is a detective guardrail with strongly
+    recommended guidance\. By default, this guardrail is not enabled\.
+  FullDocumentation: "Detect Whether Unrestricted Internet Connection Through SSH\
+    \ is Allowed<a name=\"ssh-disallow-internet\"></a>\n\nThis guardrail detects whether\
+    \ internet connections are allowed through remote services such as the Secure\
+    \ Shell \\(SSH\\) protocol\\. This guardrail does not change the status of the\
+    \ account\\. This is a detective guardrail with strongly recommended guidance\\\
+    . By default, this guardrail is not enabled\\.\n\nThe artifact for this guardrail\
+    \ is the following AWS Config rule\\.\n\n```\nAWSTemplateFormatVersion: 2010-09-09\n\
+    Description: Configure AWS Config rules to check whether security groups that\
+    \ are in use disallow SSH\nParameters:\n  ConfigRuleName:\n    Type: 'String'\n\
+    \    Description: 'Name for the Config rule'\nResources:\n  CheckForRestrictedSshPolicy:\n\
+    \    Type: AWS::Config::ConfigRule\n    Properties:\n      ConfigRuleName: !Sub\
+    \ ${ConfigRuleName}\n      Description: Checks whether security groups that are\
+    \ in use disallow unrestricted incoming SSH traffic.\n      Scope:\n        ComplianceResourceTypes:\n\
+    \        - AWS::EC2::SecurityGroup\n      Source:\n        Owner: AWS\n      \
+    \  SourceIdentifier: INCOMING_SSH_DISABLED\n```\n\n"
+  Guidance: Recommended
+  Name: Detect Whether Unrestricted Internet Connection Through SSH is Allowed
+  Sid: INCOMING_SSH_DISABLED
+  Type: ConfigRule
+- Description: Protects your account by requiring MFA for all AWS IAM users in the
+    console\. MFA reduces vulnerability risks from weak authentication by requiring
+    an additional authentication code after the user name and password are successful\.
+    This guardrail detects whether MFA is enabled\. This guardrail does not change
+    the status of the account\. This is a detective guardrail with elective guidance\.
+    By default, this guardrail is not enabled\.
+  FullDocumentation: "Detect Whether MFA is Enabled for AWS IAM Users of the AWS Console<a\
+    \ name=\"disallow-console-access-mfa\"></a>\n\nProtects your account by requiring\
+    \ MFA for all AWS IAM users in the console\\. MFA reduces vulnerability risks\
+    \ from weak authentication by requiring an additional authentication code after\
+    \ the user name and password are successful\\. This guardrail detects whether\
+    \ MFA is enabled\\. This guardrail does not change the status of the account\\\
+    . This is a detective guardrail with elective guidance\\. By default, this guardrail\
+    \ is not enabled\\.\n\nThe artifact for this guardrail is the following AWS Config\
+    \ rule\\.\n\n```\nAWSTemplateFormatVersion: 2010-09-09\nDescription: Configure\
+    \ AWS Config rules to check whether MFA is enabled for all AWS IAM users that\
+    \ use a console password.\nParameters:\n  ConfigRuleName:\n    Type: 'String'\n\
+    \    Description: 'Name for the Config rule'\n  MaximumExecutionFrequency:\n \
+    \   Type: String\n    Default: 1hour\n    Description: The frequency that you\
+    \ want AWS Config to run evaluations for the rule.\n    AllowedValues:\n    -\
+    \ 1hour\n    - 3hours\n    - 6hours\n    - 12hours\n    - 24hours\nMappings:\n\
+    \  Settings:\n    FrequencyMap:\n      1hour   : One_Hour\n      3hours  : Three_Hours\n\
+    \      6hours  : Six_Hours\n      12hours : Twelve_Hours\n      24hours : TwentyFour_Hours\n\
+    Resources:\n  CheckForIAMUserConsoleMFA:\n    Type: AWS::Config::ConfigRule\n\
+    \    Properties:\n      ConfigRuleName: !Sub ${ConfigRuleName}\n      Description:\
+    \ Checks whether AWS Multi-Factor Authentication (MFA) is enabled for all AWS\
+    \ Identity and Access Management (IAM) users that use a console password. The\
+    \ rule is COMPLIANT if MFA is enabled.\n      Source:\n        Owner: AWS\n  \
+    \      SourceIdentifier: MFA_ENABLED_FOR_IAM_CONSOLE_ACCESS\n      MaximumExecutionFrequency:\n\
+    \        !FindInMap\n          - Settings\n          - FrequencyMap\n        \
+    \  - !Ref MaximumExecutionFrequency\n```\n\n"
+  Guidance: Elective
+  Name: Detect Whether MFA is Enabled for AWS IAM Users of the AWS Console
+  Sid: MFA_ENABLED_FOR_IAM_CONSOLE_ACCESS
+  Type: ConfigRule
+- Description: Detects whether your Amazon RDS database instances allow public access\.
+    You can secure your Amazon RDS database instances by disallowing public access\.
+    This guardrail does not change the status of the account\. This is a detective
+    guardrail with strongly recommended guidance\. By default, this guardrail is not
+    enabled\.
+  FullDocumentation: "Detect Whether Public Access to Amazon RDS Database Instances\
+    \ is Enabled<a name=\"disallow-rds-public-access\"></a>\n\nDetects whether your\
+    \ Amazon RDS database instances allow public access\\. You can secure your Amazon\
+    \ RDS database instances by disallowing public access\\. This guardrail does not\
+    \ change the status of the account\\. This is a detective guardrail with strongly\
+    \ recommended guidance\\. By default, this guardrail is not enabled\\.\n\nThe\
+    \ artifact for this guardrail is the following AWS Config rule\\.\n\n```\nAWSTemplateFormatVersion:\
+    \ 2010-09-09\nDescription: Configure AWS Config rules to check whether Amazon\
+    \ RDS instances are not publicly accessible.\nParameters:\n  ConfigRuleName:\n\
+    \    Type: 'String'\n    Description: 'Name for the Config rule'\nResources:\n\
+    \  CheckForRdsPublicAccess:\n    Type: AWS::Config::ConfigRule\n    Properties:\n\
+    \      ConfigRuleName: !Sub ${ConfigRuleName}\n      Description: Checks whether\
+    \ the Amazon Relational Database Service (RDS) instances are not publicly accessible.\
+    \ The rule is non-compliant if the publiclyAccessible field is true in the instance\
+    \ configuration item.\n      Source:\n        Owner: AWS\n        SourceIdentifier:\
+    \ RDS_INSTANCE_PUBLIC_ACCESS_CHECK\n      Scope:\n        ComplianceResourceTypes:\n\
+    \          - AWS::RDS::DBInstance\n```\n\n"
+  Guidance: Recommended
+  Name: Detect Whether Public Access to Amazon RDS Database Instances is Enabled
+  Sid: RDS_INSTANCE_PUBLIC_ACCESS_CHECK
+  Type: ConfigRule
+- Description: Detects whether your Amazon RDS database snapshots have public access
+    enabled\. You can protect your information by disabling public access\. This guardrail
+    does not change the status of the account\. This is a detective guardrail with
+    strongly recommended guidance\. By default, this guardrail is not enabled\.
+  FullDocumentation: "Detect Whether Public Access to Amazon RDS Database Snapshots\
+    \ is Enabled<a name=\"disallow-rds-snapshot-public-access\"></a>\n\nDetects whether\
+    \ your Amazon RDS database snapshots have public access enabled\\. You can protect\
+    \ your information by disabling public access\\. This guardrail does not change\
+    \ the status of the account\\. This is a detective guardrail with strongly recommended\
+    \ guidance\\. By default, this guardrail is not enabled\\.\n\nThe artifact for\
+    \ this guardrail is the following AWS Config rule\\.\n\n```\nAWSTemplateFormatVersion:\
+    \ 2010-09-09\nDescription: Checks if Amazon Relational Database Service (Amazon\
+    \ RDS) snapshots are public.\nParameters:\n  ConfigRuleName:\n    Type: 'String'\n\
+    \    Description: 'Name for the Config rule'\nResources:\n  CheckForRdsStorageEncryption:\n\
+    \    Type: AWS::Config::ConfigRule\n    Properties:\n      ConfigRuleName: !Sub\
+    \ ${ConfigRuleName}\n      Description: Checks if Amazon Relational Database Service\
+    \ (Amazon RDS) snapshots are public. The rule is non-compliant if any existing\
+    \ and new Amazon RDS snapshots are public.\n      Source:\n        Owner: AWS\n\
+    \        SourceIdentifier: RDS_SNAPSHOTS_PUBLIC_PROHIBITED\n      Scope:\n   \
+    \     ComplianceResourceTypes:\n          - AWS::RDS::DBSnapshot\n```\n\n"
+  Guidance: Recommended
+  Name: Detect Whether Public Access to Amazon RDS Database Snapshots is Enabled
+  Sid: RDS_SNAPSHOTS_PUBLIC_PROHIBITED
+  Type: ConfigRule
+- Description: Detects Amazon RDS database instances that are not encrypted at rest\.
+    You can secure your Amazon RDS database instances at rest by encrypting the underlying
+    storage for database instances and their automated backups, Read Replicas, and
+    snapshots\. This guardrail does not change the status of the account\. This is
+    a detective guardrail with strongly recommended guidance\. By default, this guardrail
+    is not enabled\.
+  FullDocumentation: "Detect Whether Storage Encryption is Enabled for Amazon RDS\
+    \ Database Instances<a name=\"disallow-rds-storage-unencrypted\"></a>\n\nDetects\
+    \ Amazon RDS database instances that are not encrypted at rest\\. You can secure\
+    \ your Amazon RDS database instances at rest by encrypting the underlying storage\
+    \ for database instances and their automated backups, Read Replicas, and snapshots\\\
+    . This guardrail does not change the status of the account\\. This is a detective\
+    \ guardrail with strongly recommended guidance\\. By default, this guardrail is\
+    \ not enabled\\.\n\nThe artifact for this guardrail is the following AWS Config\
+    \ rule\\.\n\n```\nAWSTemplateFormatVersion: 2010-09-09\nDescription: Configure\
+    \ AWS Config rules to check whether storage encryption is enabled for your RDS\
+    \ DB instances\nParameters:\n  ConfigRuleName:\n    Type: 'String'\n    Description:\
+    \ 'Name for the Config rule'\nResources:\n  CheckForRdsStorageEncryption:\n  \
+    \  Type: AWS::Config::ConfigRule\n    Properties:\n      ConfigRuleName: !Sub\
+    \ ${ConfigRuleName}\n      Description: Checks whether storage encryption is enabled\
+    \ for your RDS DB instances.\n      Source:\n        Owner: AWS\n        SourceIdentifier:\
+    \ RDS_STORAGE_ENCRYPTED\n      Scope:\n        ComplianceResourceTypes:\n    \
+    \      - AWS::RDS::DBInstance\n```"
+  Guidance: Recommended
+  Name: Detect Whether Storage Encryption is Enabled for Amazon RDS Database Instances
+  Sid: RDS_STORAGE_ENCRYPTED
+  Type: ConfigRule
+- Description: This guardrail helps reduce a server's exposure to risk by detecting
+    whether unrestricted incoming TCP traffic is allowed\. It detects whether internet
+    connections are enabled to Amazon EC2 instances through services such as Remote
+    Desktop Protocol \(RDP\)\. This guardrail does not change the status of the account\.
+    This is a detective guardrail with strongly recommended guidance\. By default,
+    this guardrail is not enabled\.
+  FullDocumentation: "Detect Whether Unrestricted Incoming TCP Traffic is Allowed<a\
+    \ name=\"rdp-disallow-internet\"></a>\n\nThis guardrail helps reduce a server's\
+    \ exposure to risk by detecting whether unrestricted incoming TCP traffic is allowed\\\
+    . It detects whether internet connections are enabled to Amazon EC2 instances\
+    \ through services such as Remote Desktop Protocol \\(RDP\\)\\. This guardrail\
+    \ does not change the status of the account\\. This is a detective guardrail with\
+    \ strongly recommended guidance\\. By default, this guardrail is not enabled\\\
+    .\n\nThe artifact for this guardrail is the following AWS Config rule\\.\n\n```\n\
+    AWSTemplateFormatVersion: 2010-09-09\nDescription: Configure AWS Config rules\
+    \ to check whether security groups that are in use disallow unrestricted incoming\
+    \ TCP traffic to the specified ports.\nParameters:\n  ConfigRuleName:\n    Type:\
+    \ 'String'\n    Description: 'Name for the Config rule'\n  blockedPort1:\n   \
+    \ Type: String\n    Default: '20'\n    Description: Blocked TCP port number.\n\
+    \  blockedPort2:\n    Type: String\n    Default: '21'\n    Description: Blocked\
+    \ TCP port number.\n  blockedPort3:\n    Type: String\n    Default: '3389'\n \
+    \   Description: Blocked TCP port number.\n  blockedPort4:\n    Type: String\n\
+    \    Default: '3306'\n    Description: Blocked TCP port number.\n  blockedPort5:\n\
+    \    Type: String\n    Default: '4333'\n    Description: Blocked TCP port number.\n\
+    Conditions:\n  blockedPort1:\n    Fn::Not:\n    - Fn::Equals:\n      - ''\n  \
+    \    - Ref: blockedPort1\n  blockedPort2:\n    Fn::Not:\n    - Fn::Equals:\n \
+    \     - ''\n      - Ref: blockedPort2\n  blockedPort3:\n    Fn::Not:\n    - Fn::Equals:\n\
+    \      - ''\n      - Ref: blockedPort3\n  blockedPort4:\n    Fn::Not:\n    - Fn::Equals:\n\
+    \      - ''\n      - Ref: blockedPort4\n  blockedPort5:\n    Fn::Not:\n    - Fn::Equals:\n\
+    \      - ''\n      - Ref: blockedPort5\nResources:\n  CheckForRestrictedCommonPortsPolicy:\n\
+    \    Type: AWS::Config::ConfigRule\n    Properties:\n      ConfigRuleName: !Sub\
+    \ ${ConfigRuleName}\n      Description: Checks whether security groups that are\
+    \ in use disallow unrestricted incoming TCP traffic to the specified ports.\n\
+    \      InputParameters:\n        blockedPort1:\n          Fn::If:\n          -\
+    \ blockedPort1\n          - Ref: blockedPort1\n          - Ref: AWS::NoValue\n\
+    \        blockedPort2:\n          Fn::If:\n          - blockedPort2\n        \
+    \  - Ref: blockedPort2\n          - Ref: AWS::NoValue\n        blockedPort3:\n\
+    \          Fn::If:\n          - blockedPort3\n          - Ref: blockedPort3\n\
+    \          - Ref: AWS::NoValue\n        blockedPort4:\n          Fn::If:\n   \
+    \       - blockedPort4\n          - Ref: blockedPort4\n          - Ref: AWS::NoValue\n\
+    \        blockedPort5:\n          Fn::If:\n          - blockedPort5\n        \
+    \  - Ref: blockedPort5\n          - Ref: AWS::NoValue\n      Scope:\n        ComplianceResourceTypes:\n\
+    \        - AWS::EC2::SecurityGroup\n      Source:\n        Owner: AWS\n      \
+    \  SourceIdentifier: RESTRICTED_INCOMING_TRAFFIC\n```\n\n"
+  Guidance: Recommended
+  Name: Detect Whether Unrestricted Incoming TCP Traffic is Allowed
+  Sid: RESTRICTED_INCOMING_TRAFFIC
+  Type: ConfigRule
+- Description: This guardrail detects whether multi\-factor authentication \(MFA\)
+    is enabled for the root user of the management account\. MFA reduces vulnerability
+    risks from weak authentication by requiring an additional authentication code
+    after the user name and password are successful\. This guardrail does not change
+    the status of the account\. This is a detective guardrail with strongly recommended
+    guidance\. By default, this guardrail is not enabled\.
+  FullDocumentation: "Detect Whether MFA for the Root User is Enabled<a name=\"enable-root-mfa\"\
+    ></a>\n\nThis guardrail detects whether multi\\-factor authentication \\(MFA\\\
+    ) is enabled for the root user of the management account\\. MFA reduces vulnerability\
+    \ risks from weak authentication by requiring an additional authentication code\
+    \ after the user name and password are successful\\. This guardrail does not change\
+    \ the status of the account\\. This is a detective guardrail with strongly recommended\
+    \ guidance\\. By default, this guardrail is not enabled\\.\n\nThe artifact for\
+    \ this guardrail is the following AWS Config rule\\.\n\n```\nAWSTemplateFormatVersion:\
+    \ 2010-09-09\nDescription: Configure AWS Config rules to require MFA for root\
+    \ access to accounts\nParameters:\n  ConfigRuleName:\n    Type: 'String'\n   \
+    \ Description: 'Name for the Config rule'\n  MaximumExecutionFrequency:\n    Type:\
+    \ String\n    Default: 24hours\n    Description: The frequency that you want AWS\
+    \ Config to run evaluations for the rule.\n    AllowedValues:\n    - 1hour\n \
+    \   - 3hours\n    - 6hours\n    - 12hours\n    - 24hours\nMappings:\n  Settings:\n\
+    \    FrequencyMap:\n      1hour   : One_Hour\n      3hours  : Three_Hours\n  \
+    \    6hours  : Six_Hours\n      12hours : Twelve_Hours\n      24hours : TwentyFour_Hours\n\
+    Resources:\n  CheckForRootMfa:\n    Type: AWS::Config::ConfigRule\n    Properties:\n\
+    \      ConfigRuleName: !Sub ${ConfigRuleName}\n      Description: Checks whether\
+    \ the root user of your AWS account requires multi-factor authentication for console\
+    \ sign-in.\n      Source:\n        Owner: AWS\n        SourceIdentifier: ROOT_ACCOUNT_MFA_ENABLED\n\
+    \      MaximumExecutionFrequency:\n        !FindInMap\n          - Settings\n\
+    \          - FrequencyMap\n          - !Ref MaximumExecutionFrequency\n```\n\n"
+  Guidance: Recommended
+  Name: Detect Whether MFA for the Root User is Enabled
+  Sid: ROOT_ACCOUNT_MFA_ENABLED
+  Type: ConfigRule
+- Description: This guardrail detects whether public read access is enabled to the
+    Amazon Amazon S3 buckets in the log archive shared account\. This guardrail does
+    not change the status of the account\. This is a detective guardrail with mandatory
+    guidance\. By default, this guardrail is enabled on the **Security** OU\.
+  FullDocumentation: "Detect Public Read Access Setting for Log Archive<a name=\"\
+    log-archive-public-read\"></a>\n\nThis guardrail detects whether public read access\
+    \ is enabled to the Amazon Amazon S3 buckets in the log archive shared account\\\
+    . This guardrail does not change the status of the account\\. This is a detective\
+    \ guardrail with mandatory guidance\\. By default, this guardrail is enabled on\
+    \ the **Security** OU\\.\n\nThe artifact for this guardrail is the following AWS\
+    \ Config rule\\.\n\n```\nAWSTemplateFormatVersion: 2010-09-09\nDescription: Configure\
+    \ AWS Config rules to check that your S3 buckets do not allow public access\n\
+    Parameters:\n  ConfigRuleName:\n    Type: 'String'\n    Description: 'Name for\
+    \ the Config rule'\nResources:\n  CheckForS3PublicRead:\n    Type: AWS::Config::ConfigRule\n\
+    \    Properties:\n      ConfigRuleName: !Sub ${ConfigRuleName}\n      Description:\
+    \ Checks that your S3 buckets do not allow public read access. If an S3 bucket\
+    \ policy or bucket ACL allows public read access, the bucket is noncompliant.\n\
+    \      Source:\n        Owner: AWS\n        SourceIdentifier: S3_BUCKET_PUBLIC_READ_PROHIBITED\n\
+    \      Scope:\n        ComplianceResourceTypes:\n          - AWS::S3::Bucket\n\
+    ```\n\n"
+  Guidance: Mandatory
+  Name: Detect Public Read Access Setting for Log Archive
+  Sid: S3_BUCKET_PUBLIC_READ_PROHIBITED
+  Type: ConfigRule
+- Description: This guardrail detects whether public read access is allowed to Amazon
+    S3 buckets\. It helps you maintain secure access to data stored in the buckets\.
+    This guardrail does not change the status of the account\. This is a detective
+    guardrail with strongly recommended guidance\. By default, this guardrail is not
+    enabled\.
+  FullDocumentation: "Detect Whether Public Read Access to Amazon S3 Buckets is Allowed<a\
+    \ name=\"s3-disallow-public-read\"></a>\n\nThis guardrail detects whether public\
+    \ read access is allowed to Amazon S3 buckets\\. It helps you maintain secure\
+    \ access to data stored in the buckets\\. This guardrail does not change the status\
+    \ of the account\\. This is a detective guardrail with strongly recommended guidance\\\
+    . By default, this guardrail is not enabled\\.\n\nThe artifact for this guardrail\
+    \ is the following AWS Config rule\\.\n\n```\nAWSTemplateFormatVersion: 2010-09-09\n\
+    Description: Configure AWS Config rules to check that your S3 buckets do not allow\
+    \ public access\nParameters:\n  ConfigRuleName:\n    Type: 'String'\n    Description:\
+    \ 'Name for the Config rule'\nResources:\n  CheckForS3PublicRead:\n    Type: AWS::Config::ConfigRule\n\
+    \    Properties:\n      ConfigRuleName: !Sub ${ConfigRuleName}\n      Description:\
+    \ Checks that your S3 buckets do not allow public read access. If an S3 bucket\
+    \ policy or bucket ACL allows public read access, the bucket is noncompliant.\n\
+    \      Source:\n        Owner: AWS\n        SourceIdentifier: S3_BUCKET_PUBLIC_READ_PROHIBITED\n\
+    \      Scope:\n        ComplianceResourceTypes:\n          - AWS::S3::Bucket\n\
+    ```\n\n"
+  Guidance: Recommended
+  Name: Detect Whether Public Read Access to Amazon S3 Buckets is Allowed
+  Sid: S3_BUCKET_PUBLIC_READ_PROHIBITED
+  Type: ConfigRule
+- Description: This guardrail detects whether public write access is enabled to the
+    Amazon Amazon S3 buckets in the log archive shared account\. This guardrail does
+    not change the status of the account\. This is a detective guardrail with mandatory
+    guidance\. By default, this guardrail is enabled on the **Security** OU\.
+  FullDocumentation: "Detect Public Write Access Setting for Log Archive<a name=\"\
+    log-archive-public-write\"></a>\n\nThis guardrail detects whether public write\
+    \ access is enabled to the Amazon Amazon S3 buckets in the log archive shared\
+    \ account\\. This guardrail does not change the status of the account\\. This\
+    \ is a detective guardrail with mandatory guidance\\. By default, this guardrail\
+    \ is enabled on the **Security** OU\\.\n\nThe artifact for this guardrail is the\
+    \ following AWS Config rule\\.\n\n```\nAWSTemplateFormatVersion: 2010-09-09\n\
+    Description: Configure AWS Config rules to check that your S3 buckets do not allow\
+    \ public access\nParameters:\n  ConfigRuleName:\n    Type: 'String'\n    Description:\
+    \ 'Name for the Config rule'\nResources:\n  CheckForS3PublicWrite:\n    Type:\
+    \ AWS::Config::ConfigRule\n    Properties:\n      ConfigRuleName: !Sub ${ConfigRuleName}\n\
+    \      Description: Checks that your S3 buckets do not allow public write access.\
+    \ If an S3 bucket policy or bucket ACL allows public write access, the bucket\
+    \ is noncompliant.\n      Source:\n        Owner: AWS\n        SourceIdentifier:\
+    \ S3_BUCKET_PUBLIC_WRITE_PROHIBITED\n      Scope:\n        ComplianceResourceTypes:\n\
+    \          - AWS::S3::Bucket\n```\n\n"
+  Guidance: Mandatory
+  Name: Detect Public Write Access Setting for Log Archive
+  Sid: S3_BUCKET_PUBLIC_WRITE_PROHIBITED
+  Type: ConfigRule
+- Description: This guardrail detects whether public write access is allowed to Amazon
+    S3 buckets\. It helps you maintain secure access to data stored in the buckets\.
+    This guardrail does not change the status of the account\. This is a detective
+    guardrail with strongly recommended guidance\. By default, this guardrail is not
+    enabled\.
+  FullDocumentation: "Detect Whether Public Write Access to Amazon S3 Buckets is Allowed<a\
+    \ name=\"s3-disallow-public-write\"></a>\n\nThis guardrail detects whether public\
+    \ write access is allowed to Amazon S3 buckets\\. It helps you maintain secure\
+    \ access to data stored in the buckets\\. This guardrail does not change the status\
+    \ of the account\\. This is a detective guardrail with strongly recommended guidance\\\
+    . By default, this guardrail is not enabled\\.\n\nThe artifact for this guardrail\
+    \ is the following AWS Config rule\\.\n\n```\nAWSTemplateFormatVersion: 2010-09-09\n\
+    Description: Configure AWS Config rules to check that your S3 buckets do not allow\
+    \ public access\nParameters:\n  ConfigRuleName:\n    Type: 'String'\n    Description:\
+    \ 'Name for the Config rule'\nResources:\n  CheckForS3PublicWrite:\n    Type:\
+    \ AWS::Config::ConfigRule\n    Properties:\n      ConfigRuleName: !Sub ${ConfigRuleName}\n\
+    \      Description: Checks that your S3 buckets do not allow public write access.\
+    \ If an S3 bucket policy or bucket ACL allows public write access, the bucket\
+    \ is noncompliant.\n      Source:\n        Owner: AWS\n        SourceIdentifier:\
+    \ S3_BUCKET_PUBLIC_WRITE_PROHIBITED\n      Scope:\n        ComplianceResourceTypes:\n\
+    \          - AWS::S3::Bucket\n```\n\n"
+  Guidance: Recommended
+  Name: Detect Whether Public Write Access to Amazon S3 Buckets is Allowed
+  Sid: S3_BUCKET_PUBLIC_WRITE_PROHIBITED
+  Type: ConfigRule
+- Description: Detects whether your Amazon S3 buckets are enabled for versioning\.
+    Versioning allows you to recover objects from accidental deletion or overwrite\.
+    This guardrail does not change the status of the account\. This is a detective
+    guardrail with elective guidance\. By default, this guardrail is not enabled\.
+  FullDocumentation: "Detect Whether Versioning for Amazon S3 Buckets is Enabled<a\
+    \ name=\"disallow-s3-no-versioning\"></a>\n\nDetects whether your Amazon S3 buckets\
+    \ are enabled for versioning\\. Versioning allows you to recover objects from\
+    \ accidental deletion or overwrite\\. This guardrail does not change the status\
+    \ of the account\\. This is a detective guardrail with elective guidance\\. By\
+    \ default, this guardrail is not enabled\\.\n\nThe artifact for this guardrail\
+    \ is the following AWS Config rule\\.\n\n```\nAWSTemplateFormatVersion: 2010-09-09\n\
+    Description: Configure AWS Config rules to check whether versioning is enabled\
+    \ for your S3 buckets.\nParameters:\n  ConfigRuleName:\n    Type: 'String'\n \
+    \   Description: 'Name for the Config rule'\nResources:\n  CheckForS3VersioningEnabled:\n\
+    \    Type: AWS::Config::ConfigRule\n    Properties:\n      ConfigRuleName: !Sub\
+    \ ${ConfigRuleName}\n      Description: Checks whether versioning is enabled for\
+    \ your S3 buckets.\n      Source:\n        Owner: AWS\n        SourceIdentifier:\
+    \ S3_BUCKET_VERSIONING_ENABLED\n      Scope:\n        ComplianceResourceTypes:\n\
+    \          - AWS::S3::Bucket\n```"
+  Guidance: Elective
+  Name: Detect Whether Versioning for Amazon S3 Buckets is Enabled
+  Sid: S3_BUCKET_VERSIONING_ENABLED
+  Type: ConfigRule
