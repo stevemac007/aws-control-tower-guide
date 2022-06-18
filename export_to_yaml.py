@@ -48,6 +48,7 @@ filemap = [
     ("doc_source/mandatory-guardrails.md", "Mandatory"),
     ("doc_source/strongly-recommended-guardrails.md", "Recommended"),
     ("doc_source/elective-guardrails.md", "Elective"),
+    ("doc_source/data-residency-guardrails.md", "DataResidency"),
 ]
 all_guardrails = []
 
